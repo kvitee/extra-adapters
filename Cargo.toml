@@ -1,0 +1,8 @@
+[package]
+name = "extra-adapters"
+version = "0.1.0"
+edition = "2024"
+description = "Extra iterator adapters"
+license = "MIT"
+
+[dependencies]
