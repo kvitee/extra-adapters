@@ -12,16 +12,19 @@ where
     /// # Examples
     ///
     /// ```
+    /// # use extra_adapters::*;
+    /// #
     /// let data = vec![1, 2, 3, 4, 5, 6, 7];
-    /// let compressed: Vec<_> = data.iter().compress(
+    /// let compressed: Vec<_> = data.into_iter().compress(
     ///     vec![true, true, false, false, true, false, true]
     /// ).collect();
     ///
     /// assert_eq!(vec![1, 2, 5, 7], compressed);
     /// 
     /// // If there are more elements in the original iterator
-    /// then selectors, the rest of them will be discarded:
-    /// let compressed: Vec<_> = data.iter().compress(
+    /// // then selectors, the rest of them will be discarded:
+    /// let data = vec![1, 2, 3, 4, 5, 6, 7];
+    /// let compressed: Vec<_> = data.into_iter().compress(
     ///     vec![false, true, true, false, true]
     /// ).collect();
     ///
