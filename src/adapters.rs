@@ -1,12 +1,8 @@
 use super::iterators::*;
 
-pub trait ExtraAdapters<S, B>: Iterator
-where
-    S: IntoIterator<Item = B>,
-    B: Into<bool>,
-{
-    /// 'Compresses' iterator returning new one thet yields
-    /// original elements for which the corresponding item 
+pub trait ExtraAdapters: Iterator {
+    /// 'Compresses' iterator returning new one that yields
+    /// original elements for which the corresponding item
     /// from `selectors` is `true`.
     ///
     /// # Examples
@@ -20,7 +16,7 @@ where
     /// ).collect();
     ///
     /// assert_eq!(vec![1, 2, 5, 7], compressed);
-    /// 
+    ///
     /// // If there are more elements in the original iterator
     /// // then selectors, the rest of them will be discarded:
     /// let data = vec![1, 2, 3, 4, 5, 6, 7];
@@ -30,18 +26,14 @@ where
     ///
     /// assert_eq!(vec![2, 3, 5], compressed);
     /// ```
-    fn compress(self, selectors: S) -> Compress<Self, S, B>
+    fn compress<S, B>(self, selectors: S) -> Compress<Self, S, B>
     where
         Self: Sized,
+        S: IntoIterator<Item = B>,
+        B: Into<bool>,
     {
         Compress::new(self, selectors)
     }
 }
 
-impl<I, S, B> ExtraAdapters<S, B> for I
-where
-    I: Iterator,
-    S: IntoIterator<Item = B>,
-    B: Into<bool>,
-{
-}
+impl<I: Iterator> ExtraAdapters for I {}
