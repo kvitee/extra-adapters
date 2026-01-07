@@ -14,7 +14,7 @@ where
     S: IntoIterator<Item = B>,
     B: Into<bool>,
 {
-    pub fn new(iterator: I, selectors: S) -> Self {
+    pub(crate) fn new(iterator: I, selectors: S) -> Self {
         Self {
             iterator,
             selectors: selectors.into_iter(),
@@ -31,21 +31,22 @@ where
     type Item = I::Item;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(i) = self.iterator.next() {
-            if let Some(s) = self.selectors.next()
-                && s.into()
-            {
-                return Some(i);
+        loop {
+            match (
+                self.iterator.next(),
+                self.selectors.next().map(|s| s.into()),
+            ) {
+                (item, Some(true)) => break item,
+                (Some(_), Some(false)) => continue,
+                _ => break None,
             }
         }
-
-        None
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
+    use std::iter;
 
     use super::*;
 
@@ -53,7 +54,9 @@ mod tests {
     fn compress() {
         let compressed: Vec<_> = Compress::new(
             1..=10,
-            [true, false, false, true, false, true, true, true, false, false],
+            [
+                true, false, false, true, false, true, true, true, false, false,
+            ],
         )
         .collect();
 
@@ -74,5 +77,30 @@ mod tests {
             Compress::new(1..=5, [true, true, false, true, false, true, true]).collect();
 
         assert_eq!(vec![1, 2, 4], compressed);
+    }
+
+    #[test]
+    fn infinite_selectors() {
+        let compressed: Vec<_> = Compress::new(
+            1..=5,
+            iter::repeat(iter::chain(iter::once(true), iter::once(false))).flatten(),
+        )
+        .collect();
+
+        assert_eq!(vec![1, 3, 5], compressed);
+    }
+
+    #[test]
+    fn infinite_false_selectors() {
+        let compressed: Vec<_> = Compress::new(1..=5, iter::repeat(false)).collect();
+
+        assert_eq!(Vec::<i32>::new(), compressed);
+    }
+
+    #[test]
+    fn infinite_true_selectors() {
+        let compressed: Vec<_> = Compress::new(1..=5, iter::repeat(true)).collect();
+
+        assert_eq!(vec![1, 2, 3, 4, 5], compressed);
     }
 }
