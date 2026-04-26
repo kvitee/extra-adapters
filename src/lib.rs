@@ -93,6 +93,32 @@ pub trait SliceExtraAdapters<'s, T: Copy>: AsRef<[T]> {
     fn k_permutations(&'s self, k: usize) -> Permutations<'s, T> {
         Permutations::new(self.as_ref(), Some(k))
     }
+
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use extra_adapters::*;
+    /// #
+    /// let data = vec![1, 2, 3, 4, 5];
+    /// let combinations = data.combinations(3).collect();
+    ///
+    /// assert_eq!(combinations, vec![
+    ///     vec![1, 2, 3],
+    ///     vec![1, 2, 4],
+    ///     vec![1, 2, 5],
+    ///     vec![1, 3, 4],
+    ///     vec![1, 3, 5],
+    ///     vec![1, 4, 5],
+    ///     vec![2, 3, 4],
+    ///     vec![2, 3, 5],
+    ///     vec![2, 4, 5],
+    ///     vec![3, 4, 5],
+    /// ]);
+    /// ```
+    fn combinations(&'s self, select: usize) -> Combinations<'s, T> {
+        Combinations::new(self.as_ref(), select)
+    }
 }
 
 impl<I: Iterator> ExtraAdapters for I {}
