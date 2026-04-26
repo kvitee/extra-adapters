@@ -1,18 +1,18 @@
 use std::iter::{FilterMap, Zip};
 
-pub struct Compress<I, S, B = bool>(
-    FilterMap<Zip<I, S::IntoIter>, fn((I::Item, B)) -> Option<I::Item>>,
+pub struct Compress<I, S>(
+    FilterMap<Zip<I, S::IntoIter>, fn((I::Item, S::Item)) -> Option<I::Item>>,
 )
 where
     I: Iterator,
-    S: IntoIterator<Item = B>,
-    B: Into<bool>;
+    S: IntoIterator,
+    S::Item: Into<bool>;
 
-impl<I, S, B> Compress<I, S, B>
+impl<I, S> Compress<I, S>
 where
     I: Iterator,
-    S: IntoIterator<Item = B>,
-    B: Into<bool>,
+    S: IntoIterator,
+    S::Item: Into<bool>,
 {
     pub(crate) fn new(iterator: I, selectors: S) -> Self {
         Self(
@@ -23,11 +23,11 @@ where
     }
 }
 
-impl<I, S, B> Iterator for Compress<I, S, B>
+impl<I, S> Iterator for Compress<I, S>
 where
     I: Iterator,
-    S: IntoIterator<Item = B>,
-    B: Into<bool>,
+    S: IntoIterator,
+    S::Item: Into<bool>,
 {
     type Item = I::Item;
 
@@ -73,11 +73,7 @@ mod tests {
 
     #[test]
     fn infinite_selectors() {
-        let compressed: Vec<_> = Compress::new(
-            1..=5,
-            [true, false].into_iter().cycle(),
-        )
-        .collect();
+        let compressed: Vec<_> = Compress::new(1..=5, [true, false].into_iter().cycle()).collect();
 
         assert_eq!(vec![1, 3, 5], compressed);
     }

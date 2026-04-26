@@ -33,11 +33,11 @@ pub trait ExtraAdapters: Iterator {
     ///
     /// assert_eq!(vec![2, 3, 5], compressed);
     /// ```
-    fn compress<S, B>(self, selectors: S) -> Compress<Self, S, B>
+    fn compress<S>(self, selectors: S) -> Compress<Self, S>
     where
         Self: Sized,
-        S: IntoIterator<Item = B>,
-        B: Into<bool>,
+        S: IntoIterator,
+        S::Item: Into<bool>,
     {
         Compress::new(self, selectors)
     }
